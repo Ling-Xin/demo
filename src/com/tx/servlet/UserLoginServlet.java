@@ -27,8 +27,9 @@ public class UserLoginServlet extends HttpServlet {
 
         if(user != null){
             request.getSession().setAttribute("user",user);
+            response.sendRedirect("/index.html");
+        }else{
+            response.getWriter().print("false");
         }
-
-        JSONServlet.getJson(request,response,user);
     }
 }

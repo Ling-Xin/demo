@@ -16,17 +16,16 @@
 		</style>
 	</head>
 
-	<body>
-
+	<body
 		<div id="login">
-			<form method="post">
+			<form method="post" action="/UserLoginServlet">
 				<div class="form-group">
 					<label for="user_name">用户名</label>
-					<input type="text" class="form-control" id="user_name" placeholder="用户名">
+					<input type="text" class="form-control" name="user_name" id="user_name" placeholder="用户名">
 				</div>
 				<div class="form-group">
 					<label for="user_password">密码</label>
-					<input type="password" class="form-control" id="user_password" placeholder="密码">
+					<input type="password" class="form-control" name="user_password" id="user_password" placeholder="密码">
 				</div>
 				<button type="submit" id="submit" class="btn btn-default">登录</button>
 				<button type="reset" class="btn btn-default">重置</button>
@@ -36,17 +35,19 @@
 		<script type="text/javascript" src="bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
 		
 		<script>
-			$("#submit").click(function (e) {
+			/*$("#submit").click(function (e) {
 				e.preventDefault();
 				$.ajax({
 					url: "/UserLoginServlet",
 					type: "post",
 					data:{user_name:$("#user_name").val(),user_password:$("#user_password").val()},
 					success: function (result) {
-						console.log(result);
+						if(result == "false") {
+							console.log("登陆失败");
+						}
 					}
 				})
-			});
+			});*/
 		</script>
 	</body>
 

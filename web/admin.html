@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>用户列表</title>
+    <link rel="stylesheet" href="bootstrap-4.3.1-dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="dataTables/jquery.dataTables.min.css">
+
+    <style>
+        #showTable{
+            margin-top: 20px;
+        }
+        div.dataTables_filter input {
+            width: 16em;
+            border: 1px solid #CCC;
+        }
+        tbody tr td:last-child span:last-child{
+            margin-left: 20px;
+        }
+        tbody tr td:last-child span:hover{
+            cursor: pointer;
+        }
+        .modal-body input[type=text],[type=password]{
+            width: 90%;
+        }
+    </style>
+</head>
+<body>
+    <div id="showTable" class="container">
+        <table id="example" class="table display">
+            <thead>
+            <tr>
+                <th>用户id</th>
+                <th>用户名</th>
+                <th>年龄</th>
+                <th>性别</th>
+                <th>地址</th>
+                <th>电话</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+    </div>
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#add-user">
+        新增用户
+    </button>
+    <!-- Modal -->
+    <div class="modal fade" id="add-user" tabindex="-1" role="dialog" aria-labelledby="CenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="CenterTitle">新增用户</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-data" class="text-right">
+                        <div class="form-group row">
+                            <label for="userName" class="col-sm-2 col-form-label">用户名</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" name="user_name" id="userName" placeholder="请输入您的用户名">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="password" class="col-sm-2 col-form-label">密码</label>
+                            <div class="col-sm-10">
+                                <input type="password" class="form-control" name="user_password" id="password" placeholder="请输入您的密码">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="age" class="col-sm-2 col-form-label">年龄</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" name="user_age" id="age" placeholder="请输入您的年龄">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="sex" class="col-sm-2 col-form-label">性别</label>
+                            <div id="sex" class="col-sm-10 text-left">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" checked="checked" name="sex" id="sex1" value="0">
+                                    <label class="form-check-label" for="sex1">男</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="sex" id="sex2" value="1">
+                                    <label class="form-check-label" for="sex2">女</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="address" class="col-sm-2 col-form-label">地址</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" name="user_address" id="address" placeholder="请输入您的地址">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="tel" class="col-sm-2 col-form-label">电话</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" name="user_tel" id="tel" placeholder="请输入您的手机号码">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-offset-2 col-sm-10 text-center">
+                                <button id="commit" type="submit" class="btn btn-primary">增加</button>
+                                <button type="reset" class="btn btn-success ml-5">重置</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="bootstrap-4.3.1-dist/js/bootstrap.bundle.min.js"></script>
+    <script type="text/javascript" src="bootstrap-4.3.1-dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="dataTables/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#example').DataTable( {
+                "ajax": "/ShowAllUserServlet",
+                language: {
+                    lengthMenu:'<label>记录：</label>'+
+                        '<select class="form-group input-sm">'+
+                            '<option selected="selected">5</option>'+
+                            '<option>10</option>'+
+                            '<option>20</option>'+
+                            '<option>50</option>'+
+                            '<option>100</option>'+
+                        '</select>',
+                    search: '<span>搜索：</span>',//右上角的搜索文本，可以写html标签
+                    sZeroRecords: "没有匹配结果",
+                    sInfo: "当前第 _START_ 至 _END_ 条记录，共 _TOTAL_ 条",
+                    sInfoEmpty: "显示第 0 至 0 项结果，共 0 项",
+                    sInfoFiltered: "(共 _MAX_ 页)",
+                    sEmptyTable: "表中数据为空",
+                    paginate: {//分页的样式内容。
+                        previous: "上一页",
+                        next: "下一页",
+                        first: "第一页",
+                        last: "最后"
+                    },
+                },
+                "columns": [
+                    { "data": "user_id" },
+                    { "data": "user_name" },
+                    { "data": "user_age" },
+                    { "data": "user_sex" },
+                    { "data": "user_address" },
+                    { "data": "user_tel" },
+                    {"defaultContent": "<span class=\"edit\"><embed src=\"img/pencil.svg\" width=\"15\" height=\"15\"  /></span>" +
+                            "<span class=\"del\"><embed src=\"img/x.svg\" width=\"15\" height=\"15\"  /></span>"}
+                ]
+            });
+        });
+
+        $(function () {
+           $("#commit").click(function (e) {
+               e.preventDefault();
+               var data = $("#form-data").serializeArray();
+               if($(this).html() == "增加"){
+                   console.log(data);
+                   $.ajax({
+                       url:"/AddUserServlet",
+                       data:{data:JSON.stringify(data)},
+                       type:"POST",
+                       success:function (result) {
+                           console.log(result);
+                       }
+                   })
+               }
+           })
+        });
+    </script>
+</body>
+</html>

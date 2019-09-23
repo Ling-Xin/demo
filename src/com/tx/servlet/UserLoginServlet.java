@@ -24,7 +24,7 @@ public class UserLoginServlet extends HttpServlet {
         String user_name = request.getParameter("user_name");
         String user_password = request.getParameter("user_password");
 
-        User user = userService.userLogin(user_name, MD5Util.md5(user_password));
+        User user = userService.userLogin(user_name, user_password);
         boolean result;
 
         if(user != null){

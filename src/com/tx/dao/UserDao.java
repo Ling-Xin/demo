@@ -3,6 +3,7 @@ package com.tx.dao;
 
 import com.tx.entity.User;
 import com.tx.util.C3P0Utils;
+import com.tx.util.MD5Util;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.BeanHandler;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
@@ -26,7 +27,7 @@ public class UserDao {
         User user = null;
 
         try {
-            user = qr.query(sql, new BeanHandler<>(User.class), user_name, user_password);
+            user = qr.query(sql, new BeanHandler<>(User.class), user_name, MD5Util.md5(user_password));
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -57,7 +58,7 @@ public class UserDao {
         sql = "insert into tb_user(user_name,user_password,user_age,user_sex,user_address,user_tel) values(?,?,?,?,?,?)";
         int result = 0;
         try {
-            result = qr.update(sql, user.getUser_name(), user.getUser_password(), user.getUser_age(), user.getUser_sex(), user.getUser_address(), user.getUser_tel());
+            result = qr.update(sql, user.getUser_name(), MD5Util.md5(user.getUser_password()), user.getUser_age(), user.getUser_sex(), user.getUser_address(), user.getUser_tel());
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -74,7 +75,7 @@ public class UserDao {
         sql = "update tb_user set user_name = ?,user_password = ?,user_age = ?,user_sex = ?,user_address = ?,user_tel = ? where user_id = ?";
         int result = 0;
         try {
-            result = qr.update(sql,user.getUser_name(),user.getUser_password(),user.getUser_age(),user.getUser_sex(),user.getUser_address(),user.getUser_tel(),user_id);
+            result = qr.update(sql,user.getUser_name(),MD5Util.md5(user.getUser_password()),user.getUser_age(),user.getUser_sex(),user.getUser_address(),user.getUser_tel(),user_id);
         } catch (SQLException e) {
             e.printStackTrace();
         }

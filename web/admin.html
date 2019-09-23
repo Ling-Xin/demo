@@ -23,6 +23,10 @@
         .modal-body input[type=text],[type=password]{
             width: 90%;
         }
+        .hover{
+            text-decoration: #0c0c0c;
+            color: #CCCCCC;
+        }
     </style>
 </head>
 <body>
@@ -39,7 +43,7 @@
                 <th>操作</th>
             </tr>
             </thead>
-            <tbody>
+            <tbody id="rowData">
 
             </tbody>
         </table>
@@ -158,17 +162,28 @@
         });
 
         $(function () {
+            var nodes = $('#example').DataTable().fnSettings().aoData[new_line[0]].nTr;
+            console.log(nodes);
+
            $("#commit").click(function (e) {
                e.preventDefault();
                var data = $("#form-data").serializeArray();
+               var newdata = {};
+               data.map(function (value) {
+                   newdata[value.name]=value.value;
+               });
                if($(this).html() == "增加"){
-                   console.log(data);
                    $.ajax({
                        url:"/AddUserServlet",
-                       data:{data:JSON.stringify(data)},
+                       data:{data:JSON.stringify(newdata)},
                        type:"POST",
                        success:function (result) {
                            console.log(result);
+                           if(result == "true"){
+                               alert("添加成功")
+                           }else{
+                               alert("添加失败");
+                           }
                        }
                    })
                }

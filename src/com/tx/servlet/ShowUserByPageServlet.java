@@ -32,7 +32,6 @@ public class ShowUserByPageServlet extends HttpServlet {
         int totalPage = (totalUser % pageSize) == 0 ? totalUser / pageSize : totalUser / pageSize + 1;
 
         List<User> users = userService.searchAll(currPage,pageSize,userName);
-        System.out.println(users.size());
         Map<String,Object> map = new HashMap<>(4);
 
         map.put("totalPage",totalPage);

@@ -54,7 +54,7 @@
 <div id="showTable" class="container">
     <!--新增用户和批量删除-->
     <div class="mb-2">
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#add-user">
+        <button type="button" class="btn btn-primary" data-toggle="modal" id="add">
             新增用户
         </button>
         <button type="button" class="btn btn-danger" data-toggle="modal">
@@ -108,11 +108,11 @@
     </div>
 </div>
 <!-- 弹出模态框 -->
-<div class="modal fade" id="add-user" tabindex="-1" role="dialog" aria-labelledby="CenterTitle" aria-hidden="true">
+<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="CenterTitle" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="CenterTitle">新增用户</h5>
+                <h5 class="modal-title" id="CenterTitle"></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -168,8 +168,8 @@
                     </div>
                     <div class="form-group row">
                         <div class="col-sm-offset-2 col-sm-10 text-center">
-                            <button id="commit" type="submit" class="btn btn-primary">增加</button>
-                            <button type="reset" class="btn btn-success ml-5">重置</button>
+                            <button id="commit" type="submit" class="btn btn-primary"></button>
+                            <button type="reset" id="reset" class="btn btn-success ml-5">重置</button>
                         </div>
                     </div>
                 </form>
@@ -189,6 +189,7 @@
     var currPage = 1;
     var totalUser;
     $(function () {
+        //分页ajax请求
         var getTopicList = function (curr) {
             $.ajax({
                 type: 'POST',
@@ -206,14 +207,14 @@
                     totalUser = data.totalUser;
                     setPages(totalPage);
                     $.each(data.userList, function (index, item) {
-                        var $topictr = "<tr class='topicdata'>" +
+                        var $topictr = "<tr class='text-c'>" +
                             "<td>" + item.user_id + "</td>" +
                             "<td>" + item.user_name + "</td>" +
                             "<td>" + item.user_age + "</td>" +
                             "<td>" + (item.user_sex == 0 ? "男" : "女") + "</td>" +
                             "<td>" + item.user_address + "</td>" +
                             "<td>" + item.user_tel + "</td>" +
-                            "<td><button class='btn edit btn-sm btn-primary'>编辑</button><button class='btn del btn-sm btn-danger ml-2'>删除</button>" +
+                            "<td><button class='edit btn btn-sm btn-primary'>编辑</button><button class='del btn btn-sm btn-danger ml-2'>删除</button>" +
                             "</tr>";
                         $("#rowData").append($topictr);
                     });
@@ -257,7 +258,7 @@
             }
         });
 
-        //设置分页按钮格式
+        //设置分页按钮样式
         function pageSetStyle() {
             $("#curr").html(currPage);
             $("#pages").html(totalPage);
@@ -292,21 +293,52 @@
         //页面加载请求一次ajax
         getTopicList();
 
-
+        //搜索框点击时发送ajax请求
         $("#searchBtn").click(function () {
             getTopicList();
         });
 
+        //下拉列表框值改变时发送ajax请求
         $("#pageSize").change(function () {
             getTopicList();
         });
 
-        //编辑按钮
-        $(".edit").on("click", function () {
-            alert("aaa");
+        //新增用户按钮
+        $("#add").click(function () {
+            $("#CenterTitle").text("新增用户");
+            $("#commit").text("增加");
+            $("#password").parents("div[class='form-group row']").show();
+            $("#reset").click();
+            $("#modal").modal('show');
         });
 
-        //新增用户提交按钮
+        //编辑按钮
+        $("#rowData").on("click",".edit",function () {
+
+            var tds = $(this).parents("tr").children("td");
+            //设置值
+            $("#CenterTitle").text("修改用户信息");
+            $("#userName").val(tds.eq(1).text());
+            /*$("#password").parents("div").css("display","none");*/
+            $("#password").parents("div[class='form-group row']").hide();
+            $("#age").val(tds.eq(2).text());
+            var sex = tds.eq(3).text();
+            if(sex == "男"){
+                $("#sex2").attr("checked",false);
+                $("#sex1").prop("checked",true);
+            }else{
+                $("#sex1").attr("checked",false);
+                $("#sex2").prop("checked",true);
+            }
+            $("#address").val(tds.eq(4).text());
+            $("#tel").val(tds.eq(5).text());
+            $("#modal").modal('show');
+            $("#commit").text("修改");
+
+
+        });
+
+        //提交按钮
         $("#commit").click(function (e) {
             e.preventDefault();
             var data = $("#form-data").serializeArray();
@@ -323,14 +355,14 @@
                         console.log(result);
                         if (result == "true") {
                             $('#tip').fadeIn(1000);
-                            $("#add-user").modal('hide');
+                            $("#modal").modal('hide');
                             $('#tip').fadeOut(1000).delay(500);
                             getTopicList();
                         } else {
                             alert("添加失败");
                         }
                     }
-                })
+                });
             }
         })
     });

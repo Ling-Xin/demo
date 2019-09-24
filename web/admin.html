@@ -4,191 +4,336 @@
     <meta charset="UTF-8">
     <title>用户列表</title>
     <link rel="stylesheet" href="bootstrap-4.3.1-dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="dataTables/jquery.dataTables.min.css">
-
     <style>
-        #showTable{
+        #showTable {
             margin-top: 20px;
         }
+
         div.dataTables_filter input {
             width: 16em;
             border: 1px solid #CCC;
         }
-        tbody tr td:last-child span:last-child{
+
+        tbody tr td:last-child span:last-child {
             margin-left: 20px;
         }
-        tbody tr td:last-child span:hover{
+
+        tbody tr td:last-child span:hover {
             cursor: pointer;
         }
-        .modal-body input[type=text],[type=password]{
+
+        .modal-body input[type=text], [type=password] {
             width: 90%;
         }
-        .hover{
+
+        .hover {
             text-decoration: #0c0c0c;
             color: #CCCCCC;
+        }
+
+        #pageSize {
+            width: 50%;
+        }
+
+        #tip {
+            position: absolute;
+            top: 40%;
+            left: 45%;
+            width: 100px;
+            text-align: center;
+            color: white;
+            display: none;
+        }
+
+        .text-secondary span {
+            color: #007bff;
         }
     </style>
 </head>
 <body>
-    <div id="showTable" class="container">
-        <table id="example" class="table display">
-            <thead>
-            <tr>
-                <th>用户id</th>
-                <th>用户名</th>
-                <th>年龄</th>
-                <th>性别</th>
-                <th>地址</th>
-                <th>电话</th>
-                <th>操作</th>
-            </tr>
-            </thead>
-            <tbody id="rowData">
-
-            </tbody>
-        </table>
+<div id="showTable" class="container">
+    <!--新增用户和批量删除-->
+    <div class="mb-2">
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#add-user">
+            新增用户
+        </button>
+        <button type="button" class="btn btn-danger" data-toggle="modal">
+            批量删除
+        </button>
     </div>
-    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#add-user">
-        新增用户
-    </button>
-    <!-- Modal -->
-    <div class="modal fade" id="add-user" tabindex="-1" role="dialog" aria-labelledby="CenterTitle" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="CenterTitle">新增用户</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form id="form-data" class="text-right">
-                        <div class="form-group row">
-                            <label for="userName" class="col-sm-2 col-form-label">用户名</label>
-                            <div class="col-sm-10">
-                                <input type="text" class="form-control" name="user_name" id="userName" placeholder="请输入您的用户名">
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="password" class="col-sm-2 col-form-label">密码</label>
-                            <div class="col-sm-10">
-                                <input type="password" class="form-control" name="user_password" id="password" placeholder="请输入您的密码">
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="age" class="col-sm-2 col-form-label">年龄</label>
-                            <div class="col-sm-10">
-                                <input type="text" class="form-control" name="user_age" id="age" placeholder="请输入您的年龄">
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="sex" class="col-sm-2 col-form-label">性别</label>
-                            <div id="sex" class="col-sm-10 text-left">
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" checked="checked" name="sex" id="sex1" value="0">
-                                    <label class="form-check-label" for="sex1">男</label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="sex" id="sex2" value="1">
-                                    <label class="form-check-label" for="sex2">女</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="address" class="col-sm-2 col-form-label">地址</label>
-                            <div class="col-sm-10">
-                                <input type="text" class="form-control" name="user_address" id="address" placeholder="请输入您的地址">
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="tel" class="col-sm-2 col-form-label">电话</label>
-                            <div class="col-sm-10">
-                                <input type="text" class="form-control" name="user_tel" id="tel" placeholder="请输入您的手机号码">
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <div class="col-sm-offset-2 col-sm-10 text-center">
-                                <button id="commit" type="submit" class="btn btn-primary">增加</button>
-                                <button type="reset" class="btn btn-success ml-5">重置</button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
+    <!--记录数和搜索框-->
+    <div class="d-flex justify-content-between">
+        <div class="form-group w-25">
+            <label for="pageSize">记录数：</label>
+            <select id="pageSize" class="form-control form-check-inline">
+                <option value="5" selected="selected">5</option>
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+            </select>
+        </div>
+        <div class="input-group mb-3 w-25">
+            <input id="serachInput" type="text" class="form-control" placeholder="search..." aria-label="search">
+            <div class="input-group-append">
+                <button id="searchBtn" class="btn btn-outline-primary" type="button">搜索</button>
             </div>
         </div>
     </div>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>用户id</th>
+            <th>用户名</th>
+            <th>年龄</th>
+            <th>性别</th>
+            <th>地址</th>
+            <th>电话</th>
+            <th class="pl-5">操作</th>
+        </tr>
+        </thead>
+        <tbody id="rowData">
 
-    <script type="text/javascript" src="js/jquery.min.js"></script>
-    <script type="text/javascript" src="bootstrap-4.3.1-dist/js/bootstrap.bundle.min.js"></script>
-    <script type="text/javascript" src="bootstrap-4.3.1-dist/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="dataTables/jquery.dataTables.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            $('#example').DataTable( {
-                "ajax": "/ShowAllUserServlet",
-                language: {
-                    lengthMenu:'<label>记录：</label>'+
-                        '<select class="form-group input-sm">'+
-                            '<option selected="selected">5</option>'+
-                            '<option>10</option>'+
-                            '<option>20</option>'+
-                            '<option>50</option>'+
-                            '<option>100</option>'+
-                        '</select>',
-                    search: '<span>搜索：</span>',//右上角的搜索文本，可以写html标签
-                    sZeroRecords: "没有匹配结果",
-                    sInfo: "当前第 _START_ 至 _END_ 条记录，共 _TOTAL_ 条",
-                    sInfoEmpty: "显示第 0 至 0 项结果，共 0 项",
-                    sInfoFiltered: "(共 _MAX_ 页)",
-                    sEmptyTable: "表中数据为空",
-                    paginate: {//分页的样式内容。
-                        previous: "上一页",
-                        next: "下一页",
-                        first: "第一页",
-                        last: "最后"
-                    },
+        </tbody>
+    </table>
+    <!-- 分页 -->
+    <div class="d-flex justify-content-between align-self-center">
+        <p class="text-secondary">当前第&nbsp;<span id="curr"></span>&nbsp;页,共&nbsp;<span id="pages"></span>&nbsp;页,共有&nbsp;<span
+                id="total"></span>&nbsp;条数据</p>
+        <nav id="pagination" class="d-flex justify-content-end" aria-label="Page navigation example">
+            <ul class="pagination">
+                <li class="page-item" value="first"><a class="page-link" href="#">上一页</a></li>
+                <li class="page-item" value="next"><a class="page-link" href="#">下一页</a></li>
+            </ul>
+        </nav>
+    </div>
+</div>
+<!-- 弹出模态框 -->
+<div class="modal fade" id="add-user" tabindex="-1" role="dialog" aria-labelledby="CenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="CenterTitle">新增用户</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="form-data" class="text-right">
+                    <div class="form-group row">
+                        <label for="userName" class="col-sm-2 col-form-label">用户名</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" name="user_name" id="userName"
+                                   placeholder="请输入您的用户名">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="password" class="col-sm-2 col-form-label">密码</label>
+                        <div class="col-sm-10">
+                            <input type="password" class="form-control" name="user_password" id="password"
+                                   placeholder="请输入您的密码">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="age" class="col-sm-2 col-form-label">年龄</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" name="user_age" id="age" placeholder="请输入您的年龄">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="sex" class="col-sm-2 col-form-label">性别</label>
+                        <div id="sex" class="col-sm-10 text-left">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" checked="checked" name="sex" id="sex1"
+                                       value="0">
+                                <label class="form-check-label" for="sex1">男</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="sex" id="sex2" value="1">
+                                <label class="form-check-label" for="sex2">女</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="address" class="col-sm-2 col-form-label">地址</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" name="user_address" id="address"
+                                   placeholder="请输入您的地址">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="tel" class="col-sm-2 col-form-label">电话</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" name="user_tel" id="tel" placeholder="请输入您的手机号码">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-offset-2 col-sm-10 text-center">
+                            <button id="commit" type="submit" class="btn btn-primary">增加</button>
+                            <button type="reset" class="btn btn-success ml-5">重置</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 提示框 -->
+<div id="tip" class="bg-success p-2">
+    添加成功
+</div>
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="bootstrap-4.3.1-dist/js/bootstrap.bundle.min.js"></script>
+<script type="text/javascript" src="bootstrap-4.3.1-dist/js/bootstrap.min.js"></script>
+<script>
+    var totalPage;     //总页数
+    var currPage = 1;
+    var totalUser;
+    $(function () {
+        var getTopicList = function (curr) {
+            $.ajax({
+                type: 'POST',
+                url: 'ShowUserByPageServlet',
+                dataType: 'JSON',
+                data: {
+                    pageSize: $("#pageSize").val(),
+                    currPage: curr || 1,
+                    userName: $("#serachInput").val()
                 },
-                "columns": [
-                    { "data": "user_id" },
-                    { "data": "user_name" },
-                    { "data": "user_age" },
-                    { "data": "user_sex" },
-                    { "data": "user_address" },
-                    { "data": "user_tel" },
-                    {"defaultContent": "<span class=\"edit\"><embed src=\"img/pencil.svg\" width=\"15\" height=\"15\"  /></span>" +
-                            "<span class=\"del\"><embed src=\"img/x.svg\" width=\"15\" height=\"15\"  /></span>"}
-                ]
+                success: function (data) {
+                    $("#rowData").find("tr[class='topicdata']").remove();
+                    totalPage = data.totalPage;
+                    currPage = data.currPage;
+                    totalUser = data.totalUser;
+                    setPages(totalPage);
+                    $.each(data.userList, function (index, item) {
+                        var $topictr = "<tr class='topicdata'>" +
+                            "<td>" + item.user_id + "</td>" +
+                            "<td>" + item.user_name + "</td>" +
+                            "<td>" + item.user_age + "</td>" +
+                            "<td>" + (item.user_sex == 0 ? "男" : "女") + "</td>" +
+                            "<td>" + item.user_address + "</td>" +
+                            "<td>" + item.user_tel + "</td>" +
+                            "<td><button class='btn edit btn-sm btn-primary'>编辑</button><button class='btn del btn-sm btn-danger ml-2'>删除</button>" +
+                            "</tr>";
+                        $("#rowData").append($topictr);
+                    });
+                    pageSetStyle();
+                }
             });
+        };
+
+        //设置分页按钮
+        function setPages(totalPage) {
+            $("#pagination .num").remove();
+            for (var i = 1; i <= totalPage; i++) {
+                var a = $("<a href=\'#\'></a>").attr("class", "page-link");
+                a.html(i);
+                var page = $("<li></li>").attr("class", "page-item num");
+                page.attr("value", i);
+                page.append(a);
+                $(".page-item:last-child").before($(page));
+            }
+        }
+
+        //分页按钮点击事件
+        $("#pagination").on("click", "li", function () {
+            var flag = $(this).attr("value");
+
+            if (flag == "first") {
+                currPage--;
+                if (currPage < 1) {
+                    currPage = 1;
+                }
+                getTopicList(currPage);
+            } else if (flag == "next") {
+                currPage++;
+                if (currPage > totalPage) {
+                    currPage = totalPage;
+                }
+                getTopicList(currPage);
+            } else {
+                currPage = flag;
+                getTopicList(flag);
+            }
         });
 
-        $(function () {
-            var nodes = $('#example').DataTable().fnSettings().aoData[new_line[0]].nTr;
-            console.log(nodes);
+        //设置分页按钮格式
+        function pageSetStyle() {
+            $("#curr").html(currPage);
+            $("#pages").html(totalPage);
+            $("#total").html(totalUser);
+            $("page-item").eq(currPage).removeClass("active");
+            if (totalPage == 1) {
+                $(".page-item").eq(0).addClass("disabled");
+                $(".page-item").eq(0).find("a").attr("tabindex", "-1");
+                $(".page-item").eq(totalPage + 1).addClass("disabled");
+                $(".page-item").eq(totalPage + 1).find("a").attr("tabindex", "-1");
+                return;
+            }
+            if (currPage == 1) {
+                $(".page-item").eq(0).addClass("disabled");
+                $(".page-item").eq(0).find("a").attr("tabindex", "-1");
+                $(".page-item").eq(totalPage + 1).removeClass("disabled");
+                $(".page-item").eq(totalPage + 1).find("a").removeAttr("tabindex");
+            } else if (currPage == totalPage) {
+                $(".page-item").eq(totalPage + 1).addClass("disabled");
+                $(".page-item").eq(totalPage + 1).find("a").attr("tabindex", "-1");
+                $(".page-item").eq(0).removeClass("disabled");
+                $(".page-item").eq(0).find("a").removeAttr("tabindex");
+            } else {
+                $(".page-item").eq(0).removeClass("disabled");
+                $(".page-item").eq(0).find("a").removeAttr("tabindex");
+                $(".page-item").eq(totalPage - 1).removeClass("disabled");
+                $(".page-item").eq(totalPage + 1).find("a").removeAttr("tabindex");
+            }
+            $(".page-item").eq(currPage).addClass("active");
+        }
 
-           $("#commit").click(function (e) {
-               e.preventDefault();
-               var data = $("#form-data").serializeArray();
-               var newdata = {};
-               data.map(function (value) {
-                   newdata[value.name]=value.value;
-               });
-               if($(this).html() == "增加"){
-                   $.ajax({
-                       url:"/AddUserServlet",
-                       data:{data:JSON.stringify(newdata)},
-                       type:"POST",
-                       success:function (result) {
-                           console.log(result);
-                           if(result == "true"){
-                               alert("添加成功")
-                           }else{
-                               alert("添加失败");
-                           }
-                       }
-                   })
-               }
-           })
+        //页面加载请求一次ajax
+        getTopicList();
+
+
+        $("#searchBtn").click(function () {
+            getTopicList();
         });
-    </script>
+
+        $("#pageSize").change(function () {
+            getTopicList();
+        });
+
+        //编辑按钮
+        $(".edit").on("click", function () {
+            alert("aaa");
+        });
+
+        //新增用户提交按钮
+        $("#commit").click(function (e) {
+            e.preventDefault();
+            var data = $("#form-data").serializeArray();
+            var newdata = {};
+            data.map(function (value) {
+                newdata[value.name] = value.value;
+            });
+            if ($(this).html() == "增加") {
+                $.ajax({
+                    url: "/AddUserServlet",
+                    data: {data: JSON.stringify(newdata)},
+                    type: "POST",
+                    success: function (result) {
+                        console.log(result);
+                        if (result == "true") {
+                            $('#tip').fadeIn(1000);
+                            $("#add-user").modal('hide');
+                            $('#tip').fadeOut(1000).delay(500);
+                            getTopicList();
+                        } else {
+                            alert("添加失败");
+                        }
+                    }
+                })
+            }
+        })
+    });
+</script>
 </body>
 </html>

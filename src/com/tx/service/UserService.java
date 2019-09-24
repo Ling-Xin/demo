@@ -13,8 +13,12 @@ public class UserService {
         return userDao.userLogin(user_name, user_password);
     }
 
-    public List<User> searchAll() {
-        return userDao.searchAll();
+    public List<User> searchAll(int currPage,int pageSize,String userName) {
+        return userDao.searchUserBypage(currPage, pageSize, userName);
+    }
+
+    public int getTotalUser(String userName){
+        return userDao.getTotalUser(userName);
     }
 
     public boolean addUser(User user) {

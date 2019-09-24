@@ -7,6 +7,7 @@ import com.tx.util.MD5Util;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.BeanHandler;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
+import org.apache.commons.dbutils.handlers.ScalarHandler;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -35,18 +36,33 @@ public class UserDao {
     }
 
     /**
-     * 展示所有用户
+     * 分页展示用户
      * @return  返回用户列表
      */
-    public List<User> searchAll(){
-        sql = "select * from tb_user";
-        List<User> users = null;
+    public List<User> searchUserBypage(int currPage,int pageSize,String userName){
+        sql = "select * from tb_user where user_name like ? order by user_id limit ?,?";
+        List<User> list = null;
         try {
-            users = qr.query(sql, new BeanListHandler<>(User.class));
+            list = qr.query(sql, new BeanListHandler<>(User.class),"%"+userName+"%",pageSize*(currPage - 1),pageSize);
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return users;
+        return list;
+    }
+
+    /**
+     * 获得总用户数
+     * @return
+     */
+    public int getTotalUser(String userName){
+        sql = "select count(1) from tb_user where user_name like ?";
+        int result = 0;
+        try {
+            result = Integer.parseInt(String.valueOf(qr.query(sql, new ScalarHandler(),"%"+userName+"%")));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 
     /**

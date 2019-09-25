@@ -1,3 +1,11 @@
+<%--
+  Created by IntelliJ IDEA.
+  User: Administrator
+  Date: 2019/9/25 0025
+  Time: 上午 10:57
+  To change this template use File | Settings | File Templates.
+--%>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -53,14 +61,21 @@
 <body>
 <div id="showTable" class="container">
     <!--新增用户和批量删除-->
-    <div class="mb-2">
-        <button type="button" class="btn btn-primary" data-toggle="modal" id="add">
-            新增用户
-        </button>
-        <button type="button" class="btn btn-danger" data-toggle="modal">
-            批量删除
-        </button>
+    <div class="d-flex justify-content-between">
+        <div class="mb-2">
+            <button type="button" class="btn btn-primary" data-toggle="modal" id="add">
+                新增用户
+            </button>
+            <button type="button" class="btn btn-danger" data-toggle="modal">
+                批量删除
+            </button>
+        </div>
+        <div>
+            <span>欢迎您，</span><span id="loginUser">${sessionScope.user.user_name}</span>
+            <span><a href="/SessionValServlet">退出登录</a></span>
+        </div>
     </div>
+
     <!--记录数和搜索框-->
     <div class="d-flex justify-content-between">
         <div class="form-group w-25">
@@ -179,8 +194,31 @@
 </div>
 <!-- 提示框 -->
 <div id="tip" class="bg-success p-2">
-    添加成功
+    操作成功
 </div>
+
+<!-- 删除提示框 -->
+<div id="delTip" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">删除提示</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>确定要删除吗?</p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button id="confirmDel" type="button" class="btn btn-danger">确定</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <script type="text/javascript" src="js/jquery.min.js"></script>
 <script type="text/javascript" src="bootstrap-4.3.1-dist/js/bootstrap.bundle.min.js"></script>
 <script type="text/javascript" src="bootstrap-4.3.1-dist/js/bootstrap.min.js"></script>
@@ -201,7 +239,7 @@
                     userName: $("#serachInput").val()
                 },
                 success: function (data) {
-                    $("#rowData").find("tr[class='topicdata']").remove();
+                    $("#rowData").find("tr[class='text-c']").remove();
                     totalPage = data.totalPage;
                     currPage = data.currPage;
                     totalUser = data.totalUser;
@@ -319,7 +357,9 @@
             //设置值
             $("#CenterTitle").text("修改用户信息");
             $("#userName").val(tds.eq(1).text());
+            $("#userName").attr("userId",tds.eq(0).text());
             /*$("#password").parents("div").css("display","none");*/
+            $("#password").attr("disable",true);
             $("#password").parents("div[class='form-group row']").hide();
             $("#age").val(tds.eq(2).text());
             var sex = tds.eq(3).text();
@@ -338,32 +378,67 @@
 
         });
 
+        //删除按钮
+        $("#rowData").on("click",".del",function () {
+            var tr = $(this).parents("tr");
+            var userId = tr.children("td").eq(0).text();
+            console.log(userId);
+            $("#delTip").modal('show');
+            $("#confirmDel").unbind("click").click(function () {
+                $.ajax({
+                    url: "/DelUserServlet",
+                    type: "POST",
+                    data: {
+                        userId: userId
+                    },
+                    success: function (result) {
+                        if (result == "true") {
+                            $('#tip').fadeIn(1000);
+                            $('#tip').fadeOut(1000).delay(500);
+                            $("#delTip").modal('hide');
+                            tr.remove();
+                            getTopicList(currPage);
+                        } else {
+                            $("#delTip").modal('hide');
+                            console.log("操作失败");
+                        }
+                    }
+
+                })
+            })
+        });
+
         //提交按钮
         $("#commit").click(function (e) {
             e.preventDefault();
+            var url;
             var data = $("#form-data").serializeArray();
-            var newdata = {};
-            data.map(function (value) {
-                newdata[value.name] = value.value;
-            });
-            if ($(this).html() == "增加") {
-                $.ajax({
-                    url: "/AddUserServlet",
-                    data: {data: JSON.stringify(newdata)},
-                    type: "POST",
-                    success: function (result) {
-                        console.log(result);
-                        if (result == "true") {
-                            $('#tip').fadeIn(1000);
-                            $("#modal").modal('hide');
-                            $('#tip').fadeOut(1000).delay(500);
-                            getTopicList();
-                        } else {
-                            alert("添加失败");
-                        }
-                    }
-                });
+            var newData = {};
+            if($(this).html() == "增加"){
+                url = "/AddUserServlet";
+            }else{
+                url = "UpdateUserServlet";
+                data.push({"name":"user_id","value":$("#userName").attr("userId")});
             }
+            data.map(function (value) {
+                newData[value.name] = value.value;
+            });
+            $.ajax({
+                url: url,
+                data: {data: JSON.stringify(newData)},
+                type: "POST",
+                success: function (result) {
+                    if (result == "true") {
+                        $('#tip').fadeIn(1000);
+                        $('#tip').fadeOut(1000).delay(500);
+                        $("#modal").modal('hide');
+                        getTopicList(currPage);
+                    } else {
+                        $("#modal").modal('hide');
+                        console.log("操作失败");
+                    }
+                }
+            });
         })
     });
 </script>
